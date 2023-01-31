@@ -1,0 +1,14 @@
+version: '3' # composeファイルのバージョン
+services:
+  go-websocket: # サービス名
+    container_name: go-websocket
+    build: # ビルドに使うDockerファイルのパス
+      context: .
+      dockerfile: ./build/Dockerfile
+    volumes: # マウントディレクトリ
+      - ./go-websocket:/go/src/github.com/go-websocket
+    tty: true # コンテナの永続化
+    env_file: # .envファイル
+      - ./build/.go_env
+    environment:
+      - TZ=Asia/Tokyo

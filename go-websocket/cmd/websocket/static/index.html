@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <body>
+    <!-- 入力欄 -->
+    名前:
+    <input type="text" id="nametxt">
+    メッセージ:
+    <input type="text" id="msgtxt">
+    <input type="button" onclick="msgBtn()" value="送信">
+    <!-- Websocketで受信したメッセージの表示欄 -->
+    <section>
+      <ul id="messages"></ul>
+    </section>
+
+    <!-- サーバーとの通信にaxiosを使用 -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+      const ws = new WebSocket('ws://localhost:9000/ws'); // Websocket通信を開始
+
+      // サーバーから受け取ったJSONをメッセージ表示欄に追記
+      ws.addEventListener('message', function(e) {
+        const msg = JSON.parse(e.data);
+        console.log(msg);
+        const new_element1 = document.createElement('li');
+        new_element1.textContent = msg.name + ': ' + msg.msg;
+        document.getElementById('messages').appendChild(new_element1);
+      });
+
+      // 名前とメッセージを入力し、送信ボタンでpost送信する
+      const msgBtn = () => {
+        const nametxt = document.getElementById('nametxt');
+        const msgtxt = document.getElementById('msgtxt');
+        if (nametxt.value == '' || msgtxt.value == '') return;
+        const params = new URLSearchParams();
+        params.append('name', nametxt.value);
+        params.append('msg', msgtxt.value);
+        axios.post('/msg', params);
+        msgtxt.value = '';
+        return false;
+      }
+    </script>
+  </body>
+</html>
