@@ -2,19 +2,19 @@ package main
 
 import (
 	"log"
-	"net/http" // httpの標準パッケージ
+	"net/http"
 
-	"github.com/gorilla/websocket" // go getで追加した websocketの通信プロトコル
+	"github.com/gorilla/websocket"
 )
 
 // メッセージ用構造体
 type Message struct {
-	Msg  string `json:"msg"` // json形式でやりとりしますよー
+	Msg  string `json:"msg"`
 	Name string `json:"name"`
 }
 
-var clients = make(map[*websocket.Conn]bool) // 接続されるクライアント
-var broadcast = make(chan Message)           // メッセージ用ブロードキャストチャネル
+var clients = make(map[*websocket.Conn]bool)
+var broadcast = make(chan Message)
 
 // gorilla/websocketパッケージを使ってアップグレード設定（今回はバッファサイズのみ）
 var upgrader = websocket.Upgrader{
@@ -37,7 +37,7 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 	var msg Message
 	msg.Msg = r.FormValue("msg")
 	msg.Name = r.FormValue("name")
-	broadcast <- msg // メッセージを受けたらメッセージ用ブロードキャストチャネルに送信
+	broadcast <- msg
 }
 
 // ブロードキャストチャンネルに通知が来たら、全クライアントに向けてメッセージを送信
@@ -49,7 +49,7 @@ func websocketMessages() {
 		for client := range clients {
 			err := client.WriteJSON(msg)
 			if err != nil {
-				log.Println(err) //クライアントの接続が切れるとエラー
+				log.Println(err)
 				client.Close()
 				delete(clients, client)
 			}
@@ -59,10 +59,10 @@ func websocketMessages() {
 
 func main() {
 	portNumber := "9000"
-	http.Handle("/", http.FileServer(http.Dir("static"))) // "/": staticフォルダにある静的ファイルを公開
-	http.HandleFunc("/ws", websocketConnectHandler)       // "/ws": Websocket通信接続用
-	http.HandleFunc("/msg", messageHandler)               // "/msg": メッセージ送信用API
+	http.Handle("/", http.FileServer(http.Dir("static")))
+	http.HandleFunc("/ws", websocketConnectHandler)
+	http.HandleFunc("/msg", messageHandler)
 	log.Println("Server listening on port ", portNumber)
 	go websocketMessages()
-	http.ListenAndServe(":"+portNumber, nil) // 9000でWebサーバーを開始
+	http.ListenAndServe(":"+portNumber, nil)
 }
