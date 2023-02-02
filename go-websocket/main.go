@@ -64,5 +64,6 @@ func main() {
 	http.HandleFunc("/msg", messageHandler)
 	log.Println("Server listening on port ", portNumber)
 	go websocketMessages()
-	http.ListenAndServe(":"+portNumber, nil)
+	log.Println("success")
+	log.Fatal(http.ListenAndServe(":"+portNumber, nil))
 }

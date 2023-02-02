@@ -12,3 +12,5 @@ services:
       - ./build/.go_env
     environment:
       - TZ=Asia/Tokyo
+    ports:
+      - 9000:9000
