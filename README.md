@@ -7,7 +7,7 @@ goでwebsocketn追加た学ぶ
 docker-compose up
 
 # コンテナに入ってbashシェルを起動してコマンドの入力を受け付ける状態にする
-docker exec -it go-websocket /bin/sh
+docker exec -it go-websocket-with-docker /bin/sh
 
 # 起動
 go run main.go
