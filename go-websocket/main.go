@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"text/template"
 
 	"github.com/gorilla/websocket"
 )
@@ -35,8 +36,13 @@ func websocketConnectHandler(w http.ResponseWriter, r *http.Request) {
 // チャットの発言用のハンドラ
 func messageHandler(w http.ResponseWriter, r *http.Request) {
 	var msg Message
+	cookie, err := r.Cookie("username")
+	if err != nil {
+		log.Println("Cookie: ", err)
+	}
+
 	msg.Msg = r.FormValue("msg")
-	msg.Name = r.FormValue("name")
+	msg.Name = cookie.Value
 	broadcast <- msg
 }
 
@@ -57,11 +63,40 @@ func websocketMessages() {
 	}
 }
 
+func setName(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("set-name/index.html")
+	if err != nil {
+		panic(err.Error())
+	}
+	if err := t.Execute(w, nil); err != nil {
+		panic(err.Error())
+	}
+}
+
+func sendCookies(w http.ResponseWriter, r *http.Request) {
+	cookie := &http.Cookie{
+		Name: "username",
+		Value: r.FormValue("nametxt"),
+		Path: "/",
+	}
+
+	// cookieに送信
+	http.SetCookie(w, cookie)
+
+	// これは結局データをpostしてるだけ
+	t := template.Must(template.ParseFiles("static/index.html"))
+	if err := t.Execute(w, cookie); err != nil {
+		panic(err.Error())
+	}
+}
+
 func main() {
 	portNumber := "9000"
 	http.Handle("/", http.FileServer(http.Dir("static")))
 	http.HandleFunc("/ws", websocketConnectHandler)
 	http.HandleFunc("/msg", messageHandler)
+	http.HandleFunc("/set-name", setName)
+	http.HandleFunc("/set-name/set-cookie", sendCookies) // cookieをsetするapiを用意
 	log.Println("Server listening on port ", portNumber)
 	go websocketMessages()
 	log.Println("success")
