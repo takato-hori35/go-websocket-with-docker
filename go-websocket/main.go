@@ -73,7 +73,7 @@ func setName(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func sendCookies(w http.ResponseWriter, r *http.Request) {
+func openChatPage(w http.ResponseWriter, r *http.Request) {
 	cookie := &http.Cookie{
 		Name: "username",
 		Value: r.FormValue("nametxt"),
@@ -95,7 +95,7 @@ func main() {
 	http.HandleFunc("/ws", websocketConnectHandler)
 	http.HandleFunc("/msg", messageHandler)
 	http.HandleFunc("/", setName)
-	http.HandleFunc("/chat-page", sendCookies) // cookieをsetするapiを用意
+	http.HandleFunc("/chat-page", openChatPage)
 	log.Println("Server listening on port ", portNumber)
 	go websocketMessages()
 	log.Println("success")
