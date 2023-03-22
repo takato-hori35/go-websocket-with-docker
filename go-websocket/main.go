@@ -92,11 +92,10 @@ func sendCookies(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	portNumber := "9000"
-	http.Handle("/", http.FileServer(http.Dir("static")))
 	http.HandleFunc("/ws", websocketConnectHandler)
 	http.HandleFunc("/msg", messageHandler)
-	http.HandleFunc("/set-name", setName)
-	http.HandleFunc("/set-name/set-cookie", sendCookies) // cookieをsetするapiを用意
+	http.HandleFunc("/", setName)
+	http.HandleFunc("/chat-page", sendCookies) // cookieをsetするapiを用意
 	log.Println("Server listening on port ", portNumber)
 	go websocketMessages()
 	log.Println("success")
